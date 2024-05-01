@@ -30,7 +30,7 @@ namespace lab17
                 listView1.Items.Clear();
                 //MessageBox.Show("Null tx1 and tx2");
                 using HttpResponseMessage response =
-                await client.GetAsync(@$"https://openlibrary.org/search.json?author={HttpUtility.UrlEncode(textBox2.Text.ToString())}&title={HttpUtility.UrlEncode(textBox1.Text.ToString())}&fields=title,author_name,first_publish_year");
+                await client.GetAsync(@$"https://openlibrary.org/search.json?author={HttpUtility.UrlEncode(textBox2.Text)}&title={HttpUtility.UrlEncode(textBox1.Text)}&fields=title,author_name,first_publish_year");
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadFromJsonAsync<ListBooks>();
                 if (content.num_found == 0)
@@ -40,7 +40,7 @@ namespace lab17
                 }
                 foreach (var item in content.docs)
                 {
-                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name?[0] ?? "Not indicated", item.first_publish_year.ToString(), item.title.ToString() });
+                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name?[0] ?? "Not indicated", item.first_publish_year.ToString(), item.title});
                     listView1.Items.Add(listViewItem);
                 }
                 //MessageBox.Show(content.docs.Count.ToString());
@@ -54,7 +54,7 @@ namespace lab17
                 //MessageBox.Show(test);
                 //MessageBox.Show("Null tx1");
                 using HttpResponseMessage response =
-                await client.GetAsync(@$"https://openlibrary.org/search.json?title={HttpUtility.UrlEncode(textBox1.Text.ToString())}&fields=title,author_name,first_publish_year");
+                await client.GetAsync(@$"https://openlibrary.org/search.json?title={HttpUtility.UrlEncode(textBox1.Text)}&fields=title,author_name,first_publish_year");
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadFromJsonAsync<ListBooks>();
                 if (content.num_found == 0)
@@ -65,7 +65,7 @@ namespace lab17
                 }
                 foreach (var item in content.docs)
                 {
-                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name?[0] ?? "Not indicated", item.first_publish_year.ToString(), item.title.ToString() });
+                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name?[0] ?? "Not indicated", item.first_publish_year.ToString(), item.title});
                     listView1.Items.Add(listViewItem);
                 }
                 //MessageBox.Show(content.docs.Count.ToString());
@@ -75,7 +75,7 @@ namespace lab17
             {
                 listView1.Items.Clear();
                 using HttpResponseMessage response =
-                await client.GetAsync(@$"https://openlibrary.org/search.json?author={HttpUtility.UrlEncode(textBox2.Text.ToString())}&fields=title,author_name,first_publish_year");
+                await client.GetAsync(@$"https://openlibrary.org/search.json?author={HttpUtility.UrlEncode(textBox2.Text)}&fields=title,author_name,first_publish_year");
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadFromJsonAsync<ListBooks>();
                 if (content.num_found == 0)
@@ -86,11 +86,43 @@ namespace lab17
                 }
                 foreach (var item in content.docs)
                 {
-                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name?[0] ?? "Not indicated", item.first_publish_year.ToString(),item.title.ToString()});
+                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name?[0] ?? "Not indicated", item.first_publish_year.ToString(),item.title});
                     listView1.Items.Add(listViewItem);
                 }
                 //MessageBox.Show(content.docs.Count.ToString());
                 return;
+            }
+
+        }
+        public async Task<ListBooks> ScreachBooks(string FindAuthor,string FindTitle)
+        {
+            //MessageBox.Show(@$"https://openlibrary.org/search.json?title={HttpUtility.UrlEncode((!string.IsNullOrEmpty(FindTitle) ? FindTitle : "\\"))}&author={HttpUtility.UrlEncode((!string.IsNullOrEmpty(FindAuthor) ? FindAuthor : "\\"))}&fields=title,author_name,first_publish_year");
+            HttpClient client = new HttpClient();
+            using HttpResponseMessage response =
+            await client.GetAsync(@$"https://openlibrary.org/search.json?title={HttpUtility.UrlEncode((!string.IsNullOrEmpty(FindTitle) ? FindTitle : "\\"))}&author={HttpUtility.UrlEncode((!string.IsNullOrEmpty(FindAuthor) ? FindAuthor : "\\"))}&fields=title,author_name,first_publish_year");
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadFromJsonAsync<ListBooks>();
+            return content;
+        }
+
+        private async void button2_Click(object sender, EventArgs e)
+        {
+            var books = await ScreachBooks(textBox2.Text, textBox1.Text);
+            UpdateList(books);
+
+
+        }
+        private void UpdateList(ListBooks books)
+        {
+            listView1.Items.Clear();
+            if(books.num_found == 0) {
+                MessageBox.Show("Not found");
+                return;
+            }
+            foreach (var item in books.docs)
+            {
+                ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name?[0] ?? "Not indicated", item.first_publish_year.ToString(), item.title });
+                listView1.Items.Add(listViewItem);
             }
 
         }
