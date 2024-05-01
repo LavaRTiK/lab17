@@ -9,6 +9,7 @@ using System.Net.Http.Json;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
 
 namespace lab17
@@ -29,7 +30,7 @@ namespace lab17
                 listView1.Items.Clear();
                 //MessageBox.Show("Null tx1 and tx2");
                 using HttpResponseMessage response =
-                await client.GetAsync(@$"https://openlibrary.org/search.json?author={textBox2.Text.ToString().Replace(' ','+')}&title={textBox1.Text.ToString().Replace(' ','+')}&fields=title,author_name,first_publish_year");
+                await client.GetAsync(@$"https://openlibrary.org/search.json?author={HttpUtility.UrlEncode(textBox2.Text.ToString())}&title={HttpUtility.UrlEncode(textBox1.Text.ToString())}&fields=title,author_name,first_publish_year");
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadFromJsonAsync<ListBooks>();
                 if (content.num_found == 0)
@@ -39,7 +40,7 @@ namespace lab17
                 }
                 foreach (var item in content.docs)
                 {
-                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name[0], item.first_publish_year.ToString(), item.title.ToString() });
+                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name?[0] ?? "Not indicated", item.first_publish_year.ToString(), item.title.ToString() });
                     listView1.Items.Add(listViewItem);
                 }
                 //MessageBox.Show(content.docs.Count.ToString());
@@ -49,9 +50,11 @@ namespace lab17
             if(!string.IsNullOrEmpty(textBox1.Text))
             {
                 listView1.Items.Clear();
+                //var test = HttpUtility.UrlEncode("https://openlibrary.org/search.json?title=Мамонт и трава&fields=title,author_name,first_publish_year");
+                //MessageBox.Show(test);
                 //MessageBox.Show("Null tx1");
                 using HttpResponseMessage response =
-                await client.GetAsync(@$"https://openlibrary.org/search.json?title={textBox1.Text.ToString().Replace(' ','+')}&fields=title,author_name,first_publish_year");
+                await client.GetAsync(@$"https://openlibrary.org/search.json?title={HttpUtility.UrlEncode(textBox1.Text.ToString())}&fields=title,author_name,first_publish_year");
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadFromJsonAsync<ListBooks>();
                 if (content.num_found == 0)
@@ -62,7 +65,7 @@ namespace lab17
                 }
                 foreach (var item in content.docs)
                 {
-                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name[0], item.first_publish_year.ToString(), item.title.ToString() });
+                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name?[0] ?? "Not indicated", item.first_publish_year.ToString(), item.title.ToString() });
                     listView1.Items.Add(listViewItem);
                 }
                 //MessageBox.Show(content.docs.Count.ToString());
@@ -72,7 +75,7 @@ namespace lab17
             {
                 listView1.Items.Clear();
                 using HttpResponseMessage response =
-                await client.GetAsync(@$"https://openlibrary.org/search.json?author={textBox2.Text.ToString().Replace(' ','+')}&fields=title,author_name,first_publish_year");
+                await client.GetAsync(@$"https://openlibrary.org/search.json?author={HttpUtility.UrlEncode(textBox2.Text.ToString())}&fields=title,author_name,first_publish_year");
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadFromJsonAsync<ListBooks>();
                 if (content.num_found == 0)
@@ -83,7 +86,7 @@ namespace lab17
                 }
                 foreach (var item in content.docs)
                 {
-                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name[0], item.first_publish_year.ToString(),item.title.ToString()});
+                    ListViewItem listViewItem = new ListViewItem(new string[] { item.author_name?[0] ?? "Not indicated", item.first_publish_year.ToString(),item.title.ToString()});
                     listView1.Items.Add(listViewItem);
                 }
                 //MessageBox.Show(content.docs.Count.ToString());
